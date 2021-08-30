@@ -8,6 +8,8 @@ const TOTAL_CARDS = 16;
 const COUNT = 8;
 let SCORE = 0;
 let TOTAL_SCORE;
+let timer = 0;
+let timerInterval;
 
 let selectedCards = [];
 
@@ -56,14 +58,15 @@ function renderCards(arr) {
 // Function to render buttons
 function renderButtons() {
   configContainer.innerHTML = "";
+  document.getElementById("notification-msg").style.display = "none";
   let configBtn;
 
   if (!gameStart) {
     // render start button
-    configBtn = `<button onclick="clickConfigBtn()">Start</button>`;
+    configBtn = `<button class="start-btn" onclick="clickConfigBtn()">Start</button>`;
   } else {
     // render reset button
-    configBtn = `<button onclick="clickConfigBtn()">Reset</button>`;
+    configBtn = `<button class="reset-btn" onclick="clickConfigBtn()">Reset</button>`;
   }
   configContainer.innerHTML += configBtn;
 }
@@ -75,46 +78,114 @@ function clickConfigBtn() {
 
   if (gameStart) {
     // Render cards
+    randomArray = shuffleArray(generateRandomArray(TOTAL_CARDS, COUNT));
+
     renderCards(randomArray);
+    let cardElements = document.querySelectorAll(".memory-card");
+    //  Loop through all cards and set their display to none so that card isn't shown when flipped
+    document.querySelectorAll(".front-face").forEach((frontFace) => {
+      frontFace.style.display = "none";
+    });
+
+    let shuffleCount = 0;
+    cardElements.forEach((card) => {
+      //  Set animation to all cards
+
+      setTimeout(() => {
+        card.style.animation = "shuffle 1s";
+      }, 100 + shuffleCount);
+      shuffleCount += 50;
+    });
+
+    // Set all cards front-face to display again after shuffle animation
+    setTimeout(() => {
+      document.querySelectorAll(".front-face").forEach((frontFace) => {
+        frontFace.style.display = "block";
+      });
+      // Set timer when game starts
+      timerInterval = setInterval(() => {
+        timer += 1;
+        document.getElementById("timer").innerHTML = timer;
+      }, 1000);
+    }, 1500);
   } else {
     console.log("game end");
+    let cards = document.querySelectorAll(".memory-card");
+    timer = 0;
+    document.getElementById("timer").innerHTML = timer;
+    clearInterval(timerInterval);
+    cards.forEach((card) => {
+      card.classList.remove("flip");
+    });
   }
+}
+
+function youWin() {
+  // Stop timer
+  clearInterval(timerInterval);
+  // Save time
+  setHighScore();
+  // Change config button to "start"
+
+  // Display text that show "you win!"
+  document.getElementById("notification-msg").style.display = "block";
 }
 
 // Card clicked function
 function cardClicked() {
   //   console.log(this);
-  if (!this.classList.contains("flip")) {
-    this.classList.toggle("flip");
-    selectedCards.push(this);
+  if (gameStart) {
+    if (!this.classList.contains("flip")) {
+      this.classList.toggle("flip");
+      selectedCards.push(this);
 
-    if (selectedCards.length === 2) {
-      // if match
-      if (selectedCards[0].dataset.id === selectedCards[1].dataset.id) {
-        console.log("match");
-        SCORE++;
-        selectedCards = [];
-        console.log("SCORE: ", SCORE);
-        console.log("TOTAL: ", TOTAL_SCORE);
+      if (selectedCards.length === 2) {
+        // if match
+        if (selectedCards[0].dataset.id === selectedCards[1].dataset.id) {
+          console.log("match");
+          SCORE++;
+          selectedCards = [];
+          console.log("SCORE: ", SCORE);
+          console.log("TOTAL: ", TOTAL_SCORE);
 
-        if (SCORE == TOTAL_SCORE) {
-          console.log("you win");
+          if (SCORE == TOTAL_SCORE) {
+            console.log("you win");
+            youWin();
+          }
+        } else {
+          // toggle back
+          console.log("hier", selectedCards);
+
+          selectedCards.forEach((card) => {
+            console.log("---", card);
+            setTimeout(() => {
+              card.classList.toggle("flip");
+            }, 1000);
+            //  card.classList.toggle("flip");
+          });
+
+          selectedCards = [];
         }
-      } else {
-        // toggle back
-        console.log("hier", selectedCards);
-
-        selectedCards.forEach((card) => {
-          console.log("---", card);
-          setTimeout(() => {
-            card.classList.toggle("flip");
-          }, 1000);
-          //  card.classList.toggle("flip");
-        });
-
-        selectedCards = [];
       }
     }
+  }
+}
+
+// Get highest score if stored
+function getHighestScore() {
+  return window.localStorage.getItem("memory-app-time");
+  //   console.log("best time: ", bestTime);
+}
+
+// Store high score
+function setHighScore() {
+  let highScore = getHighestScore();
+  if (highScore) {
+    if (highScore > timer) {
+      window.localStorage.setItem("memory-app-time", JSON.stringify(timer));
+    }
+  } else {
+    window.localStorage.setItem("memory-app-time", JSON.stringify(timer));
   }
 }
 
@@ -133,3 +204,6 @@ function setCardEventListeners() {
 }
 
 renderCards(randomArray);
+
+// Print highest score
+document.getElementById("best-time").innerHTML = getHighestScore();

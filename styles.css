@@ -7,13 +7,14 @@
 body {
   height: 100vh;
   background-color: rgb(219, 219, 219);
-  display: flex;
+  /* display: flex; */
 }
 
 #game-board {
   width: 640px;
   height: 640px;
   display: flex;
+  margin: auto;
   /* position: absolute; */
   /* text-align: center; */
   justify-content: center;
@@ -22,18 +23,62 @@ body {
 }
 
 #config-container {
-  width: 320px;
-  height: 100px;
-  /* display: flex; */
+  width: 33.33%;
+  height: 50px;
+  display: flex;
   /* justify-content: center; */
-  /* margin: auto; */
+  margin: auto;
   border: 1px solid black;
+}
+
+.timer-container {
+  width: 33.33%;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
+.high-score-container {
+  width: 33.33%;
+  /* margin: auto; */
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.notification-container {
+  display: flex;
+  justify-content: center;
+}
+
+#notification-msg {
+  color: white;
+  font-size: 150%;
+  background-color: green;
+  text-align: center;
+  width: 15%;
+  border: 1px solid white;
+  display: none;
 }
 
 #config-container > button {
   height: 75%;
   width: 50%;
   margin: auto;
+}
+
+.start-btn {
+  background-color: green;
+}
+
+.reset-btn {
+  background-color: red;
+}
+
+#header-container {
+  display: flex;
+  padding-bottom: 10px;
+  border-bottom: 2px solid black;
 }
 
 .memory-card {
@@ -69,4 +114,13 @@ body {
 
 .front-face {
   transform: rotateY(180deg);
+}
+
+@keyframes shuffle {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
 }
